@@ -129,7 +129,7 @@ for kf in range(fold_number):
     history = model.fit(data_generator.flow(train_X, train_Y, batch_size),
                     steps_per_epoch = len(train_X) / batch_size,
                     epochs = num_epochs,
-                    verbose = 0, 
+                    verbose = 1,
                     callbacks = [es],
                     validation_data = (val_X, val_Y))
     
