@@ -25,7 +25,7 @@ warnings.filterwarnings('ignore')
 data = pd.read_csv('fer2013.csv') #Reading the FER2013 dataset
 data = data.sample(frac= 1)
 
-fold_number = 5
+fold_number = 10
 
 data['KFold'] = range(len(data))
 data['KFold'] = data['KFold']%fold_number
@@ -148,6 +148,11 @@ for kf in range(fold_number):
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    plt.savefig('Confusion_'+str(kf)+'_val_acc_'+str(score[1])+'_4_fold.png')
+    plt.savefig('10_fold_iter/Confusion_'+str(kf+1)+'_val_acc_'+str(score[1])+'_10_fold.png')
 
-np.savetxt("test_accuracy.csv", scorelist, delimiter =",")
+    # Saving the models
+    model.save('10_fold_iter/model_10_fold_iter_KF_'+ str(kf+1) + '.h5')
+
+
+
+np.savetxt("10_fold_iter/test_accuracy.csv", scorelist, delimiter =",")
