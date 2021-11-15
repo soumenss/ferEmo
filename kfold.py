@@ -45,8 +45,8 @@ def CRNO(df):
     data_Y = to_categorical(df['emotion'], num_classes)
     return data_X, data_Y
 
-data_generator = ImageDataGenerator(featurewise_center = False,
-                                    featurewise_std_normalization = False,
+data_generator = ImageDataGenerator(featurewise_center = True,  #False,
+                                    featurewise_std_normalization = True, #False,
                                     rotation_range = 20,
                                     width_shift_range = 0.2,
                                     height_shift_range = 0.2,
@@ -70,28 +70,28 @@ for kf in range(fold_number):
     model = Sequential()
 
     #module 1
-    model.add(Conv2D(2*2*num_features, kernel_size=(3, 3), padding = 'same', input_shape=((width, height, 1)), data_format='channels_last'))
+    model.add(Conv2D(2*num_features, kernel_size=(3, 3), padding = 'same', input_shape=((width, height, 1)), data_format='channels_last'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
-    model.add(Conv2D(2*2*num_features, kernel_size=(3, 3), padding='same'))
+    model.add(Conv2D(2*num_features, kernel_size=(3, 3), padding='same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
     #module 2
-    model.add(Conv2D(2*num_features, kernel_size=(3, 3), padding='same'))
+    model.add(Conv2D(4*num_features, kernel_size=(3, 3), padding='same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
-    model.add(Conv2D(2*num_features, kernel_size=(3, 3), padding='same'))
+    model.add(Conv2D(4*num_features, kernel_size=(3, 3), padding='same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
 
     #module 3
-    model.add(Conv2D(num_features, kernel_size=(3, 3), padding='same'))
+    model.add(Conv2D(8*num_features, kernel_size=(3, 3), padding='same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
-    model.add(Conv2D(num_features, kernel_size=(3, 3), padding='same'))
+    model.add(Conv2D(8*num_features, kernel_size=(3, 3), padding='same'))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
     model.add(MaxPooling2D(pool_size=(2, 2), strides=(2, 2)))
@@ -100,31 +100,31 @@ for kf in range(fold_number):
     model.add(Flatten())
 
     #dense 1
-    model.add(Dense(2*2*2*num_features))
+    model.add(Dense(16*num_features))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
 
     #dense 2
-    model.add(Dense(2*2*num_features))
+    model.add(Dense(16*num_features))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
 
     #dense 3
-    model.add(Dense(2*num_features))
+    model.add(Dense(num_features))
     model.add(BatchNormalization())
     model.add(Activation('relu'))
-    model.add(Dropout(0.2))
+    model.add(Dropout(0.5))
 
     #output layer
     model.add(Dense(num_classes, activation='softmax'))
 
     model.compile(loss='categorical_crossentropy', 
-                  optimizer=Adam(lr=0.001, beta_1=0.9, beta_2=0.999, epsilon=1e-7), 
+                  optimizer=Adam(lr=0.0001, beta_1=0.9, beta_2=0.999, epsilon=1e-7), #lr= 0.001
                   metrics=['accuracy'])
 
-    # model.summary()
+    model.summary()
     
     history = model.fit(data_generator.flow(train_X, train_Y, batch_size),
                     steps_per_epoch = len(train_X) / batch_size,
