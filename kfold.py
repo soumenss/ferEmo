@@ -33,7 +33,7 @@ data.drop('Usage', inplace= True, axis= 1)
 
 num_classes = 7
 width, height = 48, 48
-num_epochs = 2
+num_epochs = 100
 batch_size = 64
 num_features = 64
 
@@ -56,6 +56,7 @@ data_generator = ImageDataGenerator(featurewise_center = False,
 es = EarlyStopping(monitor = 'val_loss', patience = 20, mode = 'min', restore_best_weights = True)
 # es = EarlyStopping(monitor = 'val_accuracy', patience = 30, mode = 'max', restore_best_weights = True)
 
+scorelist = []
 
 for kf in range(fold_number):
     data_train = data[data['KFold'] != kf].copy()
@@ -134,18 +135,19 @@ for kf in range(fold_number):
     
     score = model.evaluate(val_X, val_Y, verbose=1)
     print(score[1])
+    scorelist.append(score[1])
     
+    # Creating and saving confusion matrix
     pred_Y=model.predict(val_X)
-
     tesst_Y=np.argmax(val_Y, axis=1)
     pred_Y=np.argmax(pred_Y,axis=1)
-
     cmatrix=confusion_matrix(tesst_Y, pred_Y)
     cmatrix = cmatrix.astype('float')/cmatrix.sum(axis=1)[:, np.newaxis]
-
     figure = plt.figure(figsize=(8, 8))
     sns.heatmap(cmatrix, annot=True, fmt= '.2f', cmap=plt.cm.Blues)
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-    plt.savefig('Confusion_'+str(kf)+'_val_acc_'+str(score[1])+'_matrix.png')
+    plt.savefig('Confusion_'+str(kf)+'_val_acc_'+str(score[1])+'_4_fold.png')
+
+np.savetxt("test_accuracy.csv", scorelist, delimiter =",")
